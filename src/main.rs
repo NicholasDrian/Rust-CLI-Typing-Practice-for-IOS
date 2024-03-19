@@ -1,129 +1,58 @@
 mod file_io;
+mod filter;
 mod window;
 
-fn main() {
-    println!("hello world from main.rs");
-    window::create::create();
-    window::update::update_window();
-    println!("{}", file_io::load_from_path("this is a path"));
-}
-/*use termion;
-use termion::{color, style};
+use window::Window;
 
-use std::fs;
+use std::io;
+use termion::color;
+use termion::event::Key;
+use termion::input::TermRead;
+use termion::raw::IntoRawMode;
 
-use walkdir::DirEntry;
-use walkdir::WalkDir;
-
-struct Screen {}
-
-impl Screen {
-    fn init() {
-        println!(
-            "{}{}{}{}{}",
-            termion::clear::All,
-            termion::cursor::Goto(1, 1),
-            color::Fg(color::Blue),
-            style::Bold,
-            style::Invert,
-        );
-        print!("╔");
-        for _ in 0..50 {
-            print!("═");
-        }
-        println!("╗");
-        for _ in 0..20 {
-            print!("║");
-            for _ in 0..50 {
-                print!(" ");
-            }
-            println!("║");
-        }
-        print!("╚");
-        for _ in 0..50 {
-            print!("═");
-        }
-        println!("╝");
-
-        println!(
-            "{}Typing Practice{}",
-            termion::cursor::Goto(3, 2),
-            style::Reset
-        );
-    }
-
-    fn draw_window(x: u16, y: u16, width: u16, height: u16, title: &str, contents: &str) {}
-}
-
-struct Window {
-    title: String,
-    pos: (u16, u16),
-    size: (u16, u16),
-    focused: bool,
-    contents: Vec<String>,
-}
-
-impl Window {
-    pub fn new(title: &str, pos: (u16, u16), size: (u16, u16), contents: Vec<String>) -> Self {
-        let res = Window {
-            title: title.to_string(),
-            pos,
-            size,
-            focused: false,
-            contents,
-        };
-        res.draw();
-        res
-    }
-
-    pub fn set_focus(mut self, on: bool) {
-        self.focused = on;
-        sel
-    }
-
-    fn draw(self) {
-        println!(
-            "{}{}",
-            termion::cursor::Goto(self.pos.0 + 1, self.pos.1 + 1),
-            self.contents
-        );
-    }
-}
-
-fn get_sub_paths_with_ext(path: &str, extension: &str) -> Vec<DirEntry> {
-    WalkDir::new(path)
-        .into_iter()
-        .filter_map(|e| e.ok())
-        .filter(|e| {
-            e.path()
-                .to_str()
-                .unwrap()
-                .chars()
-                .rev()
-                .zip(extension.chars().rev())
-                .all(|(a, b)| a == b)
-        })
-        .collect()
+enum Mode {
+    Menu,
+    Ready,
+    Going,
+    InputPath,
+    InputExtension,
 }
 
 fn main() {
-    let paths = get_sub_paths_with_ext("/Users/nickdrian/dev/rust/typing/src", ".rs");
-    for p in paths {
-        println!("{}", p.path().to_str().unwrap());
+    print!("{}", termion::clear::All);
+
+    let main_window = Window::new("typing by kot", 6, 6, 68, 20, color::Fg(color::Blue));
+    let prompt_window = Window::new("prompt", 10, 10, 60, 10, color::Fg(color::Green));
+    let path_window = Window::new("path to text", 10, 22, 40, 1, color::Fg(color::Yellow));
+    let extension_window = Window::new("extension", 52, 22, 18, 1, color::Fg(color::LightRed));
+
+    main_window.print(
+        "0:Quit 1:Begin 2:UpdatePath 3:UpdateExtension",
+        4,
+        2,
+        color::Fg(color::White),
+    );
+
+    //run();
+}
+
+fn run() {
+    let mut stdout = io::stdout().into_raw_mode();
+    let mut stdin = termion::async_stdin(); // maybe shouldnt be async?
+    let mut it = stdin.keys();
+    loop {
+        let b = it.next();
+        match b {
+            Some(x) => match x {
+                Ok(k) => match k {
+                    Key::Left => {
+                        return;
+                    }
+                    _ => {}
+                },
+                _ => {}
+            },
+            None => {}
+        }
     }
-
-    let window = Window::new("test window", (4, 4), (20, 10), vec![]);
-    window.update_contents("yo dawg");
-
-    //Screen::init();
 }
-
-use std::fs;
-
-fn main() {
-    let data = fs::read_to_string("/etc/hosts").expect("Unable to read file");
-    println!("{}", data);
-}
-
-// ╝╗╔╚	╣╩╦╠═║╬
-*/
