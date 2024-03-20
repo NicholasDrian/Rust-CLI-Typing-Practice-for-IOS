@@ -4,11 +4,15 @@ mod window;
 
 use window::Window;
 
+// for output
 use std::io;
 use termion::color;
-use termion::event::Key;
-use termion::input::TermRead;
-use termion::raw::IntoRawMode;
+
+// for input
+extern crate termios;
+use std::io::Read;
+use std::io::Write;
+use termios::{tcsetattr, Termios, ECHO, ICANON, TCSANOW};
 
 enum Mode {
     Menu,
@@ -33,26 +37,30 @@ fn main() {
         color::Fg(color::White),
     );
 
-    //run();
+    run();
 }
 
 fn run() {
-    let mut stdout = io::stdout().into_raw_mode();
-    let mut stdin = termion::async_stdin(); // maybe shouldnt be async?
-    let mut it = stdin.keys();
+    let stdin = 0;
+    let termios = Termios::from_fd(stdin).unwrap();
+    let mut new_termios = termios.clone();
+    new_termios.c_lflag &= !(ICANON | ECHO);
+    tcsetattr(stdin, TCSANOW, &mut new_termios).unwrap();
+    let stdout = io::stdout();
+    let mut reader = io::stdin();
+    let mut buffer = [0; 1];
     loop {
-        let b = it.next();
-        match b {
-            Some(x) => match x {
-                Ok(k) => match k {
-                    Key::Left => {
-                        return;
-                    }
-                    _ => {}
-                },
-                _ => {}
-            },
-            None => {}
+        print!("Hit a key! ");
+        stdout.lock().flush().unwrap();
+        reader.read_exact(&mut buffer).unwrap();
+        match buffer {
+            [b'0'] => {
+                break;
+            }
+            _ => {
+                print!("{:?}", buffer);
+            }
         }
     }
+    tcsetattr(stdin, TCSANOW, &termios).unwrap();
 }

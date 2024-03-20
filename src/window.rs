@@ -32,5 +32,15 @@ impl<C: std::fmt::Display> Window<C> {
         );
     }
 
-    pub fn update_contents(contents: &[String]) {}
+    pub fn update_contents(self, contents: &[String]) {
+        for i in 0..contents.len() {
+            print!(
+                "{}{}{}{}",
+                termion::cursor::Goto(self.x + 1, self.y + i as u16 + 1),
+                self.color,
+                contents[i],
+                termion::style::Reset
+            );
+        }
+    }
 }

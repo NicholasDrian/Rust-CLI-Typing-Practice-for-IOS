@@ -7,4 +7,6 @@ edition = "2021"
 
 [dependencies]
 termion = "*"
+termios = "0.3.3"
 walkdir = "2"
+raw_tty = "0.1.0"
