@@ -32,15 +32,29 @@ impl<C: std::fmt::Display> Window<C> {
         );
     }
 
-    pub fn update_contents(self, contents: &[String]) {
-        for i in 0..contents.len() {
-            print!(
-                "{}{}{}{}",
-                termion::cursor::Goto(self.x + 1, self.y + i as u16 + 1),
-                self.color,
-                contents[i],
-                termion::style::Reset
-            );
+    pub fn update_contents(
+        self,
+        contents: &Vec<String>,
+        color: Option<Box<dyn std::fmt::Display>>,
+        one_line: bool,
+    ) {
+        print!(
+            "{}{}",
+            self.color,
+            termion::cursor::Goto(self.x + 1, self.y + 1),
+        );
+        if color.is_some() {
+            print!("{}", color.unwrap());
         }
+        for i in 0..contents.len() {
+            print!("{} ", contents[i]);
+            if !one_line {
+                print!(
+                    "{}",
+                    termion::cursor::Goto(self.x + 1, self.y + 2 + i as u16)
+                );
+            }
+        }
+        print!("{}", termion::style::Reset);
     }
 }

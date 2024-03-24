@@ -28,3 +28,11 @@ fn remove_single_line_comments(lines: &Vec<String>) -> Vec<String> {
     // TODO:
     vec![]
 }
+
+pub fn remove_long_lines(max_length: usize, lines: &Vec<String>) -> Vec<String> {
+    lines
+        .iter()
+        .cloned()
+        .filter(|line| line.len() < max_length)
+        .collect()
+}
