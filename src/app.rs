@@ -6,14 +6,8 @@ mod window;
 use window::Window;
 
 // for output
-use std::io;
 use termion::color;
 
-// for input
-extern crate termios;
-use std::io::Read;
-use std::io::Write;
-use termios::{tcsetattr, Termios, ECHO, ICANON, TCSANOW};
 enum Mode {
     Menu,
     Ready,
@@ -27,6 +21,7 @@ pub struct App {
     path: String,
     extensions: Vec<String>,
     text: Vec<String>,
+    prompt_window: Window,
 }
 
 impl App {
@@ -61,7 +56,7 @@ impl App {
         let extensions: Vec<String> = args[2..].to_vec();
         extension_window.update_contents(&extensions, None, true);
 
-        let prompt_window =
+        let prompt_window: Window =
             Window::new("PROMPT", 10, 10, 100, 15, Box::new(color::Fg(color::Green)));
         let mut text: Vec<String> =
             file_io::concat_file_contents(file_io::get_sub_paths_with_exts(&path, &extensions))
@@ -73,9 +68,8 @@ impl App {
         } else {
             mode = Mode::Ready;
         }
-        text = filter::remove_long_lines(90, &text);
+        text = filter::keep_lines_in_range(1, 90, &text);
         text = text.into_iter().take(15).collect();
-        prompt_window.update_contents(&text, Some(Box::new(color::Fg(color::LightWhite))), false);
 
         main_window.print(
             Self::get_instructions(&mode),
@@ -88,31 +82,16 @@ impl App {
             path,
             extensions,
             text,
+            prompt_window,
         }
     }
 
-    pub fn run(self) {
-        let stdin = 0;
-        let termios = Termios::from_fd(stdin).unwrap();
-        let mut new_termios = termios.clone();
-        new_termios.c_lflag &= !(ICANON | ECHO);
-        tcsetattr(stdin, TCSANOW, &mut new_termios).unwrap();
-        let stdout = io::stdout();
-        let mut reader = io::stdin();
-        let mut buffer = [0; 1];
-        loop {
-            stdout.lock().flush().unwrap();
-            reader.read_exact(&mut buffer).unwrap();
-            match buffer {
-                [b'0'] => {
-                    break;
-                }
-                _ => {
-                    print!("{:?}", buffer);
-                }
-            }
-        }
-        tcsetattr(stdin, TCSANOW, &termios).unwrap();
+    pub fn terminate(&self) {
+        print!("{}", termion::clear::All);
+    }
+
+    pub fn run(&self) {
+        typing::run(&self.prompt_window, &self.text);
     }
 
     fn get_instructions(mode: &Mode) -> &str {

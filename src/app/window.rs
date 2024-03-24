@@ -5,7 +5,7 @@ pub struct Window {
     x: u16,
     y: u16,
     width: u16,
-    height: u16,
+    pub height: u16,
     color: Box<dyn std::fmt::Display>,
 }
 
@@ -29,7 +29,7 @@ impl Window {
         }
     }
 
-    pub fn print(self, text: &str, x: u16, y: u16, color: Box<dyn std::fmt::Display>) {
+    pub fn print(&self, text: &str, x: u16, y: u16, color: Box<dyn std::fmt::Display>) {
         print!(
             "{}{}{}{}",
             termion::cursor::Goto(self.x + x, self.y + y),
@@ -39,12 +39,21 @@ impl Window {
         );
     }
 
+    pub fn clear(&self) {
+        for i in 1..=self.height {
+            for j in 1..=self.width {
+                print!("{} ", termion::cursor::Goto(j + self.x, i + self.y));
+            }
+        }
+    }
+
     pub fn update_contents(
-        self,
+        &self,
         contents: &Vec<String>,
         color: Option<Box<dyn std::fmt::Display>>,
         one_line: bool,
     ) {
+        self.clear();
         print!(
             "{}{}",
             self.color,

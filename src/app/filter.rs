@@ -29,10 +29,14 @@ fn remove_single_line_comments(lines: &Vec<String>) -> Vec<String> {
     vec![]
 }
 
-pub fn remove_long_lines(max_length: usize, lines: &Vec<String>) -> Vec<String> {
+pub fn keep_lines_in_range(
+    min_length: usize,
+    max_length: usize,
+    lines: &Vec<String>,
+) -> Vec<String> {
     lines
         .iter()
         .cloned()
-        .filter(|line| line.len() < max_length)
+        .filter(|line| line.len() < max_length && line.len() >= min_length)
         .collect()
 }
