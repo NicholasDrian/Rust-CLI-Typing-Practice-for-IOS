@@ -1,16 +1,23 @@
 pub mod utils;
 
-pub struct Window<C: std::fmt::Display> {
+pub struct Window {
     title: &'static str,
     x: u16,
     y: u16,
     width: u16,
     height: u16,
-    color: C,
+    color: Box<dyn std::fmt::Display>,
 }
 
-impl<C: std::fmt::Display> Window<C> {
-    pub fn new(title: &'static str, x: u16, y: u16, width: u16, height: u16, color: C) -> Self {
+impl Window {
+    pub fn new(
+        title: &'static str,
+        x: u16,
+        y: u16,
+        width: u16,
+        height: u16,
+        color: Box<dyn std::fmt::Display>,
+    ) -> Self {
         utils::create(title, x, y, width, height, &color);
         Window {
             title,
@@ -22,7 +29,7 @@ impl<C: std::fmt::Display> Window<C> {
         }
     }
 
-    pub fn print<Color: std::fmt::Display>(self, text: &str, x: u16, y: u16, color: Color) {
+    pub fn print(self, text: &str, x: u16, y: u16, color: Box<dyn std::fmt::Display>) {
         print!(
             "{}{}{}{}",
             termion::cursor::Goto(self.x + x, self.y + y),

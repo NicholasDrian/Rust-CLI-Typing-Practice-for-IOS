@@ -44,17 +44,25 @@ impl App {
 
         let mut mode: Mode = Mode::Menu;
 
-        let main_window = Window::new("TYPING", 6, 6, 108, 25, color::Fg(color::Blue));
+        let main_window = Window::new("TYPING", 6, 6, 108, 25, Box::new(color::Fg(color::Blue)));
 
-        let path_window = Window::new("PATH", 10, 28, 58, 1, color::Fg(color::Yellow));
+        let path_window = Window::new("PATH", 10, 28, 58, 1, Box::new(color::Fg(color::Yellow)));
         let path: String = args[1].clone();
         path_window.update_contents(&args[1..2].to_vec(), None, true);
 
-        let extension_window = Window::new("EXTENSIONS", 72, 28, 38, 1, color::Fg(color::LightRed));
+        let extension_window = Window::new(
+            "EXTENSIONS",
+            72,
+            28,
+            38,
+            1,
+            Box::new(color::Fg(color::LightRed)),
+        );
         let extensions: Vec<String> = args[2..].to_vec();
         extension_window.update_contents(&extensions, None, true);
 
-        let prompt_window = Window::new("PROMPT", 10, 10, 100, 15, color::Fg(color::Green));
+        let prompt_window =
+            Window::new("PROMPT", 10, 10, 100, 15, Box::new(color::Fg(color::Green)));
         let mut text: Vec<String> =
             file_io::concat_file_contents(file_io::get_sub_paths_with_exts(&path, &extensions))
                 .lines()
@@ -73,7 +81,7 @@ impl App {
             Self::get_instructions(&mode),
             4,
             2,
-            color::Fg(color::LightWhite),
+            Box::new(color::Fg(color::LightWhite)),
         );
         App {
             mode,

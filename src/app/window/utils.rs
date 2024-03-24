@@ -1,12 +1,12 @@
 use termion::style;
 
-pub fn create<C: std::fmt::Display>(
+pub fn create(
     title: &str,
     x: u16,
     y: u16,
     width: u16,
     height: u16,
-    color: C,
+    color: &Box<dyn std::fmt::Display>,
 ) {
     print!("{}{}{}", termion::cursor::Goto(x, y), color, style::Invert);
     print!("╔");
