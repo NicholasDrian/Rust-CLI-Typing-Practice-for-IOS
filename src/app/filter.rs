@@ -30,14 +30,12 @@ pub fn spaces_to_tabs(lines: &Vec<String>, count: i32) -> Vec<String> {
     todo!();
 }
 
+// TODO: optimize
 fn remove_single_line_comments(lines: &Vec<String>) -> Vec<String> {
-    // TODO:
-    return lines.clone();
-
     let mut res: Vec<String> = vec![];
     for line in lines {
         if Regex::new(r"[ \t]*//").unwrap().is_match(line) {
-            //  continue;
+            continue;
         }
         res.push(line.clone());
     }

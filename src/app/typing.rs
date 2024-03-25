@@ -51,13 +51,17 @@ pub fn run(window: &Window, text: &Vec<String>) {
                 update_scroll(window, text, row);
             }
             _ => {
-                on_char_typed(
+                let correct: bool = on_char_typed(
                     &text[row as usize],
                     buffer[0] as char,
                     &mut col,
                     &mut row,
                     window,
                 );
+                if correct {
+                    correct_chars += 1;
+                }
+                total_chars += 1;
                 col += 1;
             }
         }
@@ -65,13 +69,50 @@ pub fn run(window: &Window, text: &Vec<String>) {
     tcsetattr(stdin, TCSANOW, &termios).unwrap();
 }
 
-fn on_char_typed(text: &String, c: char, col: &mut i32, row: &mut i32, window: &Window) {
+fn on_char_typed(
+    text: &String,
+    mut c: char,
+    col: &mut i32,
+    row: &mut i32,
+    window: &Window,
+) -> bool {
+    if *col >= text.len() as i32 {
+        // Error, should have pressed enter.
+        if c == ' ' {
+            c = '_';
+        }
+        window.print(
+            &c.to_string()[..],
+            col.clone() as u16 + 1,
+            row.clone() as u16 + 1,
+            Box::new(color::Fg(color::Red)),
+        );
+        return false;
+    }
+
+    let target: char = text.chars().nth(*col as usize).unwrap();
+    if c != target {
+        // Error, wrong char
+        if c == ' ' {
+            c = '_';
+        }
+        window.print(
+            &c.to_string()[..],
+            col.clone() as u16 + 1,
+            row.clone() as u16 + 1,
+            Box::new(color::Fg(color::Red)),
+        );
+        return false;
+    }
+
+    // Correct
     window.print(
         &c.to_string()[..],
         col.clone() as u16 + 1,
         row.clone() as u16 + 1,
         Box::new(color::Fg(color::Green)),
     );
+    true
 }
 
 fn on_delete(text: &String, col: &mut i32, row: &mut i32, window: &Window) {
