@@ -1,8 +1,12 @@
+use regex::Regex;
+
 pub fn remove_comments(lines: &Vec<String>) -> Vec<String> {
     remove_single_line_comments(&remove_multi_line_comments(lines))
 }
 
 fn remove_multi_line_comments(lines: &Vec<String>) -> Vec<String> {
+    return lines.clone();
+
     let mut in_comment: bool = false;
     let mut res: Vec<String> = vec![];
     for line in lines {
@@ -22,11 +26,22 @@ fn remove_multi_line_comments(lines: &Vec<String>) -> Vec<String> {
     res
 }
 
-/**/
+pub fn spaces_to_tabs(lines: &Vec<String>, count: i32) -> Vec<String> {
+    todo!();
+}
 
 fn remove_single_line_comments(lines: &Vec<String>) -> Vec<String> {
     // TODO:
-    vec![]
+    return lines.clone();
+
+    let mut res: Vec<String> = vec![];
+    for line in lines {
+        if Regex::new(r"[ \t]*//").unwrap().is_match(line) {
+            //  continue;
+        }
+        res.push(line.clone());
+    }
+    return res;
 }
 
 pub fn keep_lines_in_range(

@@ -68,7 +68,9 @@ impl App {
         } else {
             mode = Mode::Ready;
         }
+
         text = filter::keep_lines_in_range(1, 90, &text);
+        text = filter::remove_comments(&text);
 
         main_window.print(
             Self::get_instructions(&mode),

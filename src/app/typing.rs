@@ -44,13 +44,20 @@ pub fn run(window: &Window, text: &Vec<String>) {
             }
             NEW_LINE => {
                 row += 1;
+                col = 0;
                 if row > text.len() as i32 {
                     break;
                 }
                 update_scroll(window, text, row);
             }
             _ => {
-                on_char_typed(&text[row as usize], &mut col, &mut row, window);
+                on_char_typed(
+                    &text[row as usize],
+                    buffer[0] as char,
+                    &mut col,
+                    &mut row,
+                    window,
+                );
                 col += 1;
             }
         }
@@ -58,12 +65,17 @@ pub fn run(window: &Window, text: &Vec<String>) {
     tcsetattr(stdin, TCSANOW, &termios).unwrap();
 }
 
-fn on_char_typed(text: &String, col: &mut i32, row: &mut i32, window: &Window) {
-    //TODO
+fn on_char_typed(text: &String, c: char, col: &mut i32, row: &mut i32, window: &Window) {
+    window.print(
+        &c.to_string()[..],
+        col.clone() as u16 + 1,
+        row.clone() as u16 + 1,
+        Box::new(color::Fg(color::Green)),
+    );
 }
 
 fn on_delete(text: &String, col: &mut i32, row: &mut i32, window: &Window) {
-    //TODO
+    //TODO:
 }
 
 fn update_scroll(window: &Window, text: &Vec<String>, line: i32) {
