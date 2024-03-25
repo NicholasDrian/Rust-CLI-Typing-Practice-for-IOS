@@ -69,7 +69,6 @@ impl App {
             mode = Mode::Ready;
         }
         text = filter::keep_lines_in_range(1, 90, &text);
-        text = text.into_iter().take(15).collect();
 
         main_window.print(
             Self::get_instructions(&mode),

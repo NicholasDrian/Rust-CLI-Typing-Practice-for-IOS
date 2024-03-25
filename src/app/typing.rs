@@ -8,21 +8,29 @@ use std::io::Write;
 use termios::{tcsetattr, Termios, ECHO, ICANON, TCSANOW};
 
 const ESC: [u8; 1] = [27];
+const DELETE: [u8; 1] = [127];
+const NEW_LINE: [u8; 1] = [b'\n'];
 
 pub fn run(window: &Window, text: &Vec<String>) {
     let stdin = 0;
     let termios = Termios::from_fd(stdin).unwrap();
     let mut new_termios = termios.clone();
     new_termios.c_lflag &= !(ICANON | ECHO);
-    tcsetattr(stdin, TCSANOW, &mut new_termios).unwrap();
+    tcsetattr(stdin, TCSANOW, &new_termios).unwrap();
     let stdout = io::stdout();
     let mut reader = io::stdin();
     let mut buffer = [0; 1];
 
-    let mut line: i32 = 0;
-    let mut char: i32 = 0;
+    let mut row: i32 = 0;
+    let mut col: i32 = 0;
 
-    draw_text(window, text, 0);
+    let mut golbal_correct_chars: i32 = 0;
+    let mut global_total_chars: i32 = 0;
+
+    let mut correct_chars: i32 = 0;
+    let mut total_chars: i32 = 0;
+
+    update_scroll(window, text, 0);
 
     loop {
         stdout.lock().flush().unwrap();
@@ -31,22 +39,34 @@ pub fn run(window: &Window, text: &Vec<String>) {
             ESC => {
                 break;
             }
-            [b'\n'] => {
-                line += 1;
-                if line > text.len() as i32 {
+            DELETE => {
+                on_delete(&text[row as usize], &mut col, &mut row, window);
+            }
+            NEW_LINE => {
+                row += 1;
+                if row > text.len() as i32 {
                     break;
                 }
-                draw_text(window, text, line);
+                update_scroll(window, text, row);
             }
             _ => {
-                print!("{:?}", buffer);
+                on_char_typed(&text[row as usize], &mut col, &mut row, window);
+                col += 1;
             }
         }
     }
     tcsetattr(stdin, TCSANOW, &termios).unwrap();
 }
 
-fn draw_text(window: &Window, text: &Vec<String>, line: i32) {
+fn on_char_typed(text: &String, col: &mut i32, row: &mut i32, window: &Window) {
+    //TODO
+}
+
+fn on_delete(text: &String, col: &mut i32, row: &mut i32, window: &Window) {
+    //TODO
+}
+
+fn update_scroll(window: &Window, text: &Vec<String>, line: i32) {
     let half: i32 = (window.height as i32 + 1) / 2;
     let first_line: i32 = std::cmp::max(0, line as i32 - half);
 
